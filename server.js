@@ -176,5 +176,64 @@ app.get('/team_stats', function(req, res) {
         });
 
 });
+
+
+app.get('/player_info', function(req, res) {
+  query = "SELECT id, name FROM football_players;";
+
+    db.task('get-everything', task => {
+            return task.batch([
+                task.any(query),
+            ]);
+        })
+        .then(data => {
+            res.render('pages/player_info', {
+                my_title: "Player Info",
+                players: data[0]
+            })
+        })
+        .catch(error => {
+            // display error message in case an error
+            console.log('error', error);
+            res.render('pages/player_info', {
+                my_title: "Player Info",
+                players: ""
+            })
+        });
+});
+
+app.get('/player_info/select_player', function(req, res) {
+  console.log(req.query.player_choice);
+  query2 = `SELECT * FROM football_players WHERE id=${req.query.player_choice};`;
+  query1 = "SELECT id, name FROM football_players;";
+
+    db.task('get-everything', task => {
+            return task.batch([
+                task.any(query1),
+                task.any(query2),
+            ]);
+        })
+        .then(data => {
+            res.render('pages/player_info', {
+                my_title: "Player Info",
+                players: data[0],
+                player: data[1][0]
+            })
+  console.log(data[1]);
+        })
+        .catch(error => {
+            // display error message in case an error
+            console.log('error', error);
+            res.render('pages/player_info', {
+                my_title: "Player Info",
+                players: "",
+                player: ""
+            })
+        });
+});
+
+
+
+
 app.listen(3000);
 console.log('3000 is the magic port');
